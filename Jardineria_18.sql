@@ -175,63 +175,243 @@ SELECT c.NombreCliente, COUNT(p.CodigoPedido) AS Total_Pedidos
     FROM Pedidos p INNER JOIN Clientes c
                             ON c.CodigoCliente = p.CodigoCliente
     GROUP BY c.NombreCliente;
+/*
+NOMBRECLIENTE                                      TOTAL_PEDIDOS
+-------------------------------------------------- -------------
+Flores Marivi                                                 10
+Gardening Associates                                           9
+Camunas Jardines S.L.                                          5
+Sotogrande                                                     5
+FLORES S.L.                                                    5
+Beragua                                                        5
+JardinerÃ­as MatÃ­as SL                                        5
+Agrojardin                                                     5
+Tutifruti S.A                                                  5
+Jardineria Sara                                               10
+DGPRODUCTIONS GARDEN                                          11
+Tendo Garden                                                   5
+Naturagua                                                      5
+Dardena S.A.                                                   5
+Golf S.A.                                                      5
+El Jardin Viviente S.L                                         5
+Gerudo Valley                                                  5
+Jardines y Mansiones CACTUS SL                                 5
+Jardin de Flores                                               5
+
+19 filas seleccionadas. */
 
 /* 16.	Sacar un litado con los clientes y el total pagado por cada uno de ellos */
 SELECT c.NombreCliente, SUM(p.Cantidad) AS Total_Pagado
     FROM Clientes c INNER JOIN Pagos p
                             ON c.CodigoCliente = p.CodigoCliente
     GROUP BY c.NombreCliente;
+/*NOMBRECLIENTE                                      TOTAL_PAGADO
+-------------------------------------------------- ------------
+Flores Marivi                                              4399
+Gardening Associates                                      10926
+Camunas Jardines S.L.                                      2246
+Sotogrande                                                  272
+Beragua                                                    2390
+JardinerÃ­as MatÃ­as SL                                   10972
+Agrojardin                                                 8489
+Tutifruti S.A                                              3321
+Jardineria Sara                                            7863
+DGPRODUCTIONS GARDEN                                       4000
+Tendo Garden                                              23794
+Naturagua                                                   929
+Dardena S.A.                                               4160
+Golf S.A.                                                   232
+El Jardin Viviente S.L                                     1171
+Gerudo Valley                                             81849
+Jardines y Mansiones CACTUS SL                            18846
+Jardin de Flores                                          12081
+
+18 filas seleccionadas.*/
 
 /* 17.	Nombre de los clientes que hayan hecho pedidos en 2008 */
 SELECT DISTINCT(c.NombreCliente)
     FROM Clientes c INNER JOIN Pedidos p
                             ON c.CodigoCliente = p.CodigoCliente
     WHERE EXTRACT(YEAR FROM p.FechaPedido) =  '2008';
-/*SELECT c.NombreCliente
-    FROM Clientes c INNER JOIN Pedidos p
-                            ON c.CodigoCliente = p.CodigoCliente
-    WHERE p.FechaPedido LIKE '%08'
-    GROUP BY c.NombreCliente;
-                                        MAL */
+/*NOMBRECLIENTE                                     
+--------------------------------------------------
+Flores Marivi
+Camunas Jardines S.L.
+FLORES S.L.
+Tutifruti S.A
+DGPRODUCTIONS GARDEN
+Tendo Garden
+Dardena S.A.
+El Jardin Viviente S.L
+Gerudo Valley
+Jardines y Mansiones CACTUS SL
+Jardin de Flores
+
+11 filas seleccionadas.*/
 
 /* 18.	Listar el nombre de cliente y nombre y apellido de sus representantes de aquellos clientes que no hayan realizado pagos */
-SELECT DISTINCT(c.NombreCliente), c.NombreContacto,  c.ApellidoContacto
-    FROM Clientes c INNER JOIN Pagos p
-                            ON c.CodigoCliente NOT IN p.CodigoCliente;--Poner una subconsulta
+SELECT c.NombreCliente, e.Nombre, e.Apellido1, e.Apellido2
+    FROM Clientes c INNER JOIN Empleados e ON c.CodigoEmpleadoRepVentas = e.CodigoEmpleado
+                    LEFT JOIN Pagos p ON c.CodigoCliente = p.CodigoCliente
+    WHERE p.CodigoCliente IS NULL;
+--Otra froma.
+SELECT c.NombreCliente, e.Nombre, e.Apellido1, e.Apellido2
+    FROM Clientes c INNER JOIN Empleados e ON c.CodigoEmpleadoRepVentas = e.CodigoEmpleado
+                    
+    WHERE c.CodigoCliente NOT IN(SELECT p.CodigoCliente
+                                    FROM Pagos p);
+
+/*CODIGOCLIENTE NOMBRECLIENTE                                      NOMBRE                                             APELLIDO1                                          APELLIDO2                                         
+------------- -------------------------------------------------- -------------------------------------------------- -------------------------------------------------- --------------------------------------------------
+            6 Lasas S.A.                                         Mariano                                            LÃ³pez                                             Murcia                                            
+            8 Club Golf Puerta del hierro                        Emmanuel                                           MagaÃ±a                                            Perez                                             
+           10 DaraDistribuciones                                 Emmanuel                                           MagaÃ±a                                            Perez                                             
+           11 MadrileÃ±a de riegos                               Emmanuel                                           MagaÃ±a                                            Perez                                             
+           12 Lasas S.A.                                         Mariano                                            LÃ³pez                                             Murcia                                            
+           17 Flowers, S.A                                       Felipe                                             Rosas                                              Marquez                                           
+           18 Naturajardin                                       Julian                                             Bellinelli                                                                                           
+           20 AYMERICH GOLF MANAGEMENT, SL                       JosÃ© Manuel                                       Martinez                                           De la Osa                                         
+           21 Aloha                                              JosÃ© Manuel                                       Martinez                                           De la Osa                                         
+           22 El Prat                                            JosÃ© Manuel                                       Martinez                                           De la Osa                                         
+           24 Vivero Humanes                                     Julian                                             Bellinelli                                                                                           
+           25 Fuenla City                                        Felipe                                             Rosas                                              Marquez                                           
+           29 Top Campo                                          Felipe                                             Rosas                                              Marquez                                           
+           31 Campohermoso                                       Julian                                             Bellinelli                                                                                           
+           32 france telecom                                     Lionel                                             Narvaez                                                                                              
+           33 MusÃ©e du Louvre                                   Lionel                                             Narvaez                                                                                              
+           36 FLORES S.L.                                        Michael                                            Bolton                                                                                               
+           37 THE MAGIC GARDEN                                   Michael                                            Bolton                                                                                               
+
+18 filas seleccionadas. */
 
 /* 19.	Sacar un listado de los clientes donde aparezca el nombre de su comercial y la ciudad donde está su oficina */
-SELECT cli.NombreCliente, c.nombre, ofi.ciudad, ofi.CodigoOficina
-	FROM Empleados c INNER JOIN Clientes cli
-							ON CodigoEmpleadoRepVentas = CodigoEmpleado
-					  INNER JOIN  Oficinas ofi 
-							ON ofi.CodigoOficina = c.CodigoOficina;
-                            -- Igual q el ejercicio 1 ?¿
+SELECT c.CodigoCliente, e.Nombre, o.Ciudad
+    FROM Clientes c INNER JOIN Empleados e ON c.CodigoEmpleadoRepVentas = e.CodigoEmpleado
+                    INNER JOIN  Oficinas o ON o.CodigoOficina = e.CodigoOficina;
+/*CODIGOCLIENTE NOMBRE                                             CIUDAD                        
+------------- -------------------------------------------------- ------------------------------
+            1 Walter Santiago                                    San Francisco                 
+            3 Walter Santiago                                    San Francisco                 
+            4 Lorena                                             Boston                        
+            5 Lorena                                             Boston                        
+            6 Mariano                                            Madrid                        
+            7 Emmanuel                                           Barcelona                     
+            8 Emmanuel                                           Barcelona                     
+            9 Emmanuel                                           Barcelona                     
+           10 Emmanuel                                           Barcelona                     
+           11 Emmanuel                                           Barcelona                     
+           12 Mariano                                            Madrid                        
+           13 Mariano                                            Madrid                        
+           14 Mariano                                            Madrid                        
+           15 Julian                                             Sydney                        
+           16 Felipe                                             Talavera de la Reina          
+           17 Felipe                                             Talavera de la Reina          
+           18 Julian                                             Sydney                        
+           19 JosÃ© Manuel                                       Barcelona                     
+           20 JosÃ© Manuel                                       Barcelona                     
+           21 JosÃ© Manuel                                       Barcelona                     
+           22 JosÃ© Manuel                                       Barcelona                     
+           23 JosÃ© Manuel                                       Barcelona                     
+           24 Julian                                             Sydney                        
+           25 Felipe                                             Talavera de la Reina          
+           26 Lucio                                              Madrid                        
+           27 Lucio                                              Madrid                        
+           28 Julian                                             Sydney                        
+           29 Felipe                                             Talavera de la Reina          
+           30 Felipe                                             Talavera de la Reina          
+           31 Julian                                             Sydney                        
+           32 Lionel                                             Paris                         
+           33 Lionel                                             Paris                         
+           35 Mariko                                             Sydney                        
+           36 Michael                                            San Francisco                 
+           37 Michael                                            San Francisco                 
+           38 Mariko                                             Sydney                        
+
+36 filas seleccionadas. */
 
 /* 20.	Sacar el nombre, apellidos, oficina y cargo de aquellos empleados que no sean representantes de ventas */
-SELECT e.Nombre, e.Apellido1, e.Apellido2, o.CodigoOficina, e.Puesto
-    FROM Empleados e INNER JOIN Oficinas o
-                            ON o.CodigoOficina = e.CodigoOficina
-                    INNER JOIN Clientes c
-                            ON c.CodigoEmpleadoRepVentas NOT IN e.CodigoEmpleado
-    GROUP BY e.Nombre, e.Apellido1, e.Apellido2; 
-    --  Error
+SELECT e.Nombre, e.Apellido1, e.Apellido2, e.CodigoOficina, e.Puesto
+    FROM Empleados e
+    WHERE e.Puesto != 'Representante Ventas';
+/*NOMBRE                                             APELLIDO1                                          APELLIDO2                                          CODIGOOFIC PUESTO                                            
+-------------------------------------------------- -------------------------------------------------- -------------------------------------------------- ---------- --------------------------------------------------
+Marcos                                             MagaÃ±a                                            Perez                                              TAL-ES     Director General                                  
+Ruben                                              LÃ³pez                                             Martinez                                           TAL-ES     Subdirector Marketing                             
+Alberto                                            Soria                                              Carrasco                                           TAL-ES     Subdirector Ventas                                
+Maria                                              SolÃ­s                                             Jerez                                              TAL-ES     Secretaria                                        
+Carlos                                             Soria                                              Jimenez                                            MAD-ES     Director Oficina                                  
+Emmanuel                                           MagaÃ±a                                            Perez                                              BCN-ES     Director Oficina                                  
+Francois                                           Fignon                                                                                                PAR-FR     Director Oficina                                  
+Michael                                            Bolton                                                                                                SFC-USA    Director Oficina                                  
+Hilary                                             Washington                                                                                            BOS-USA    Director Oficina                                  
+Nei                                                Nishikori                                                                                             TOK-JP     Director Oficina                                  
+Amy                                                Johnson                                                                                               LON-UK     Director Oficina                                  
+Kevin                                              Fallmer                                                                                               SYD-AU     Director Oficina                                  
+
+12 filas seleccionadas. */
 
 /* 21.	Sacar cuántos empleados tiene cada oficina, mostrando el nombre de la ciudad donde está la oficina */
-SELECT o.codigoOficina, o.Ciudad, COUNT(e.CodigoEmpleado)
-    FROM Empleados e INNER JOIN Oficinas o
-                            ON o.CodigoOficina = e.CodigoOficina
-    GROUP BY  o.codigoOficina;
-    
+ SELECT o.Ciudad, COUNT(e.CodigoEmpleado)
+    FROM Oficinas o INNER JOIN Empleados e ON o.CodigoOficina = e.CodigoOficina
+    GROUP BY o.Ciudad;
+/*CIUDAD                         COUNT(E.CODIGOEMPLEADO)
+------------------------------ -----------------------
+Madrid                                               4
+Sydney                                               3
+Paris                                                3
+Londres                                              3
+Talavera de la Reina                                 6
+Tokyo                                                3
+Barcelona                                            4
+Boston                                               3
+San Francisco                                        2
+
+9 filas seleccionadas. */
 
 /* 22.	Sacar el nombre, apellido, oficina(ciudad) y cargo del empleado que no represente a ningún cliente */
+SELECT e.Nombre, e.Apellido1, e.Apellido2, e.CodigoOficina, e.Puesto
+    FROM Empleados e
+    WHERE e.CodigoCliente NOT IN (SELECT c.CodigoEmpleadoRepVentas
+                                    FROM Clientes c);
+/*NOMBRE                                             APELLIDO1                                          APELLIDO2                                          CODIGOOFIC PUESTO                                            
+-------------------------------------------------- -------------------------------------------------- -------------------------------------------------- ---------- --------------------------------------------------
+Marcos                                             MagaÃ±a                                            Perez                                              TAL-ES     Director General                                  
+Ruben                                              LÃ³pez                                             Martinez                                           TAL-ES     Subdirector Marketing                             
+Alberto                                            Soria                                              Carrasco                                           TAL-ES     Subdirector Ventas                                
+Maria                                              SolÃ­s                                             Jerez                                              TAL-ES     Secretaria                                        
+Juan Carlos                                        Ortiz                                              Serrano                                            TAL-ES     Representante Ventas                              
+Carlos                                             Soria                                              Jimenez                                            MAD-ES     Director Oficina                                  
+Hilario                                            Rodriguez                                          Huertas                                            MAD-ES     Representante Ventas                              
+David                                              Palma                                              Aceituno                                           BCN-ES     Representante Ventas                              
+Oscar                                              Palma                                              Aceituno                                           BCN-ES     Representante Ventas                              
+Francois                                           Fignon                                                                                                PAR-FR     Director Oficina                                  
+Laurent                                            Serra                                                                                                 PAR-FR     Representante Ventas                              
+Hilary                                             Washington                                                                                            BOS-USA    Director Oficina                                  
+Marcus                                             Paxton                                                                                                BOS-USA    Representante Ventas                              
+Nei                                                Nishikori                                                                                             TOK-JP     Director Oficina                                  
+Narumi                                             Riko                                                                                                  TOK-JP     Representante Ventas                              
+Takuma                                             Nomura                                                                                                TOK-JP     Representante Ventas                              
+Amy                                                Johnson                                                                                               LON-UK     Director Oficina                                  
+Larry                                              Westfalls                                                                                             LON-UK     Representante Ventas                              
+John                                               Walton                                                                                                LON-UK     Representante Ventas                              
+Kevin                                              Fallmer                                                                                               SYD-AU     Director Oficina                                  
 
+20 filas seleccionadas.*/
 
 /* 23.	Sacar la media de unidades en stock de los productos agrupados por gamas */
-
+SELECT AVG(p.CantidadEnStock), p.Gama
+    FROM Productos
+    GROUP BY p.Gama;
+/*AVG(P.CANTIDADENSTOCK) GAMA                                              
+---------------------- --------------------------------------------------
+                   140 AromÃ¡ticas                                       
+             182,12963 Frutales                                          
+                    15 Herramientas                                      
+            81,9285714 Ornamentales         
+*/
 
 /* 24.	Sacar un listado de los clientes que residen en la misma ciudad donde hay oficina, indicando dónde está la oficina */
-
-
+SELECT
 /* 25.	Sacar los clientes que residan en ciudades donde no hay oficinas ordenado por la ciudad donde residen*/
 
 /* 26.	Sacar el número de clientes que tiene asignado cada representante de ventas */
