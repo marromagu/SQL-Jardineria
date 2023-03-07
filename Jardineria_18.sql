@@ -411,9 +411,30 @@ SELECT AVG(p.CantidadEnStock), p.Gama
 */
 
 /* 24.	Sacar un listado de los clientes que residen en la misma ciudad donde hay oficina, indicando dónde está la oficina */
-SELECT
-/* 25.	Sacar los clientes que residan en ciudades donde no hay oficinas ordenado por la ciudad donde residen*/
+SELECT c.NombreCliente, o.Ciudad
+    FROM CLIENTES c INNER JOIN Empleados e ON c.CodigoEmpleadoRepVentas = e.CodigoEmpleado
+                    INNER JOIN Oficinas o ON o.CodigoOficina = e.CodigoOficina
+    WHERE o.Ciudad = c.ciudad;
+/*NOMBRECLIENTE                                      CIUDAD                        
+-------------------------------------------------- ------------------------------
+DGPRODUCTIONS GARDEN                               San Francisco                 
+Dardena S.A.                                       Madrid                        
+AYMERICH GOLF MANAGEMENT, SL                       Barcelona                     
+Jardines y Mansiones CACTUS SL                     Madrid                        
+JardinerÃ­as MatÃ­as SL                            Madrid                        
+france telecom                                     Paris                         
+MusÃ©e du Louvre                                   Paris                         
+Tutifruti S.A                                      Sydney                        
+El Jardin Viviente S.L                             Sydney                        
 
+9 filas seleccionadas.*/
+
+/* 25.	Sacar los clientes que residan en ciudades donde no hay oficinas ordenado por la ciudad donde residen*/
+SELECT c.NombreCliente, o.Ciudad
+    FROM CLIENTES c INNER JOIN Empleados e ON c.CodigoEmpleadoRepVentas = e.CodigoEmpleado
+                    INNER JOIN Oficinas o ON o.CodigoOficina = e.CodigoOficina
+    WHERE o.Ciudad not in (SELECT ciudad
+                                from clientes );
 /* 26.	Sacar el número de clientes que tiene asignado cada representante de ventas */
 /* 27.	Sacar el cliente que hizo el pago con mayor cuantía y el que hizo el pago con menor cuantía */
 /* 28.	Sacar un listado con el precio total de cada pedido */
